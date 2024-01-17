@@ -8,6 +8,8 @@ const input = new midi.Input();
 const { vJoy, vJoyDevice } = require('vjoy');
 const fs = require('fs');
 
+const Timeout = setTimeout(function(){}, 0).constructor;
+
 let device = vJoyDevice.create(1);
 var midiConfig;
 
@@ -196,8 +198,13 @@ ipcMain.on('openMidi', (event, arg) => {
   selectedMidiPort = arg[1]
 });
 
-function vJoySetButton(button, state) {
-  device.buttons[button].set(state);
+function vJoySetButton(entry) {
+  device.buttons[parseInt(entry["button"])].set(true);
+}
+
+function vJoyUnsetButton(entry) {
+  entry.timer = null
+  device.buttons[parseInt(entry["button"])].set(false);
 }
 
 function getMidiConfig() {
@@ -233,8 +240,12 @@ input.on('message', (deltaTime, message) => {
       }
       for (var entry of midiConfig) {
         if ((parseInt(entry["midi"]) == message[1]) && (parseInt(entry["velocity"]) <= message[2])) {
-          vJoySetButton(parseInt(entry["button"]), true);
-          setTimeout(vJoySetButton, 50, parseInt(entry["button"]), false);
+          if (entry.timer instanceof Timeout) {
+            entry.timer.refresh()
+          } else {
+            vJoySetButton(entry);
+            entry.timeout = setTimeout(vJoyUnsetButton, 200, entry);
+          }
           break;
         }
       }
@@ -247,12 +258,12 @@ input.on('message', (deltaTime, message) => {
       for (var entry of midiConfig) {
         if (message[0] >= 144 && message[0] <= 159 && message[2] != 0) {
           if ((parseInt(entry["midi"]) == message[1]) && (parseInt(entry["velocity"]) <= message[2])) {
-            vJoySetButton(parseInt(entry["button"]), true);
+            vJoySetButton(entry);
             break;
           }
         } else if ((message[0] >= 128 && message[0] <= 143) || (message[0] >= 144 && message[0] <= 159 && message[2] == 0)) {
           if (parseInt(entry["midi"]) == message[1]) {
-            vJoySetButton(parseInt(entry["button"]), false);
+            vJoyUnsetButton(entry);
             break;
           }
         }
