@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ejj28/mididrumhero.git"
+    "url": "git+https://github.com/thevdude/mididrumhero.git"
   },
-  "author": "ejj28, towner-10",
+  "author": "thevdude, ejj28, towner-10",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ejj28/mididrumhero/issues"
+    "url": "https://github.com/thevdude/mididrumhero/issues"
   },
-  "homepage": "https://github.com/ejj28/mididrumhero#readme",
+  "homepage": "https://github.com/thevdude/mididrumhero#readme",
   "devDependencies": {
     "electron": "^8.5.2",
     "electron-builder": "^22.6.0"
